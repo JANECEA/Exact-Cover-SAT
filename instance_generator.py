@@ -2,7 +2,7 @@ import random
 
 MAIN_SET_SIZE = 5
 SUBSET_COUNT_MULT = 1
-GUARATEED_SAT = False
+GUARANTEED_SAT = False
 OUTPUT_FILE_NAME = "input.in"
 
 
@@ -25,7 +25,7 @@ for i in range(SUBSET_COUNT_MULT * MAIN_SET_SIZE):
 
 
 # Add subsets guaranteed to solve the problem
-if GUARATEED_SAT:
+if GUARANTEED_SAT:
     distribution: list[int] = [
         random.randint(0, MAIN_SET_SIZE - 1) for _ in range(MAIN_SET_SIZE)
     ]
