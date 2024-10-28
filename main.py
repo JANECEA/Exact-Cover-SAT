@@ -16,11 +16,11 @@ class CnfParser:
     def encode_to_cnf(self) -> None:
         self.cnf = list()
 
-        # Every element needs to be present in at least one out of the chosen subsets
+        # Every element needs to be present at least once in the chosen subsets
         for occurrences in self.element_occurrences:
             self.cnf.append([subset_index + 1 for subset_index in occurrences])
 
-        # Every element needs to be present in at most one out of the chosen subsets
+        # Every element needs to be present at most once in the chosen subsets
         for occurrences in self.element_occurrences:
             for i in range(len(occurrences)):
                 for j in range(i + 1, len(occurrences)):
