@@ -74,7 +74,9 @@ class CnfParser:
         print("Included sets: ")
         for subset_index in model:
             if subset_index > 0:
-                print(f"{{{' '.join(subsets[subset_index - 1])}}}")
+                sorted_subset: list[str] = list(subsets[subset_index - 1])
+                sorted_subset.sort()
+                print(f"{{{' '.join(sorted_subset)}}}")
 
 
 class InstanceParser:
