@@ -49,9 +49,8 @@ class CnfParser:
 
 class InstanceParser:
     path_to_file: str
-    main_set: list[str]
     element_occurrences: list[list[int]]
-    subsets: list[set[int]]
+    subsets: list[set[str]]
     __main_set_dict: dict[str, int]
 
     def __init__(self, path_to_file: str) -> None:
@@ -63,7 +62,7 @@ class InstanceParser:
             subsets_str: str = input_file.read()
 
         self.__set_main_set(main_set_str)
-        self.element_occurrences = [[] for _ in range(len(self.main_set))]
+        self.element_occurrences = [[] for _ in range(len(self.__main_set_dict))]
         self.__set_subsets(subsets_str)
 
     def __set_main_set(self, main_set_str: str) -> None:
@@ -72,9 +71,8 @@ class InstanceParser:
             raise Exception("Invalid input file format")
         main_set_str = main_set_str.strip("{}")
 
-        self.main_set = main_set_str.split()
         self.__main_set_dict = {}
-        for index, element in enumerate(self.main_set):
+        for index, element in enumerate(main_set_str.split()):
             if element not in self.__main_set_dict:
                 self.__main_set_dict[element] = index
             else:
@@ -108,9 +106,9 @@ class InstanceParser:
         if set_start_index != -1:
             raise Exception("Invalid input file format")
 
-    def __parse_subset(self, subset_str: str, subset_index: int) -> set[int]:
+    def __parse_subset(self, subset_str: str, subset_index: int) -> set[str]:
         subset_str = subset_str.strip()
-        subset: set[int] = set()
+        subset: set[str] = set()
 
         if subset_str == "":
             return subset
@@ -118,7 +116,7 @@ class InstanceParser:
         for element in subset_str.split():
             if element not in subset:
                 if element in self.__main_set_dict:
-                    subset.add(self.__main_set_dict[element])
+                    subset.add(element)
                     self.element_occurrences[self.__main_set_dict[element]].append(
                         subset_index
                     )
