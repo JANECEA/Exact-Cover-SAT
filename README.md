@@ -1,11 +1,11 @@
 # Exact-Cover-SAT
-Encodes and decodes the exact cover problem to and from SAT in the dimacs CNF format.
+Encodes, solves, and decodes he exact cover problem via reduction to SAT.
 
 # Documentation
 
 ## Problem description
 
-*"Given a collection $S$ of subsets of a set $X$, an exact cover is a subcollection $S^∗$ of $S$ such that each element in $X$ is contained in exactly one subset in $S^∗$.
+*"Given a collection* $S$ *of subsets of a set* $X$ *, an exact cover is a subcollection* $S^∗$ *of* $S$ *such that each element in* $X$ *is contained in exactly one subset in* $S^∗$ *.
 It is a non-deterministic polynomial time (NP) complete problem and has a variety of applications, ranging from the optimization of airline flight schedules, cloud computing, and electronic circuit design."* \
 [Source](https://en.wikipedia.org/wiki/Exact_cover).
 
@@ -45,15 +45,19 @@ The conditions for a collection of subsets to be an exact cover of the main set 
 
 - Every element of the main set $X$ has to be included in at least one subset in $S^*$.
 
-    $ \bigwedge_{e \in X} \left( \bigvee_{\substack{ S_i \in S \\ e \in S_i}}  (s_i) \right) $
+```math
+\bigwedge_{e \in X} \left( \bigvee_{\substack{ S_i \in S \\ e \in S_i}}  (s_i) \right)
+```
 
 - Every element of the main set $X$ can be included in at most one subset in $S^*$.
 
-    $ \bigwedge_{e \in X}
+```math
+     \bigwedge_{e \in X}
     \left(
         \bigwedge_{\substack{S_i, S_j \in S\\ S_i \neq S_j}} 
         \left(\neg s_i \lor \neg s_j \right) 
-    \right) $
+    \right)
+```
 
 ## User documentation
 
