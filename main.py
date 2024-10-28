@@ -32,12 +32,13 @@ class CnfParser:
             for clause in self.cnf:
                 output_file.write(" ".join(str(literal) for literal in clause) + " 0\n")
 
-    def call_solver(self, solver_path: str, output_path: str, verbosity: int):
+    def call_solver(
+        self, solver_path: str, output_path: str, verbosity: int
+    ) -> subprocess.CompletedProcess[bytes]:
         if not os.path.isfile(output_path):
             raise Exception(f"File {output_path} has not been found")
 
         solver_name: str = solver_path
-
         if os.path.isfile(solver_path):
             solver_name = "./" + solver_name
 
@@ -45,6 +46,35 @@ class CnfParser:
             [solver_name, "-model", "-verb=" + str(verbosity), output_path],
             stdout=subprocess.PIPE,
         )
+
+    def print_result(
+        self, result: subprocess.CompletedProcess[bytes], subsets: list[set[str]]
+    ) -> None:
+        decoded_result = result.stdout.decode("utf-8").split("\n")
+        for line in decoded_result:
+            print(line)
+
+        # returncode for SAT is 10, for UNSAT is 20
+        if result.returncode == 20:
+            return
+
+        model = []
+        for line in decoded_result:
+            if line.startswith("v"):
+                vars = line[2:].split(" ")
+                model.extend(int(v) for v in vars)
+        model.remove(0)
+
+        print()
+        print("##################################################################")
+        print("###########[ Human readable result of the exact cover ]###########")
+        print("##################################################################")
+        print()
+
+        print("Included sets: ")
+        for subset_index in model:
+            if subset_index > 0:
+                print(f"{{{' '.join(subsets[subset_index - 1])}}}")
 
 
 class InstanceParser:
@@ -173,7 +203,8 @@ def main():
     )
     cnf_parser.encode_to_cnf()
     cnf_parser.write_to_file(args.output)
-    cnf_parser.call_solver(args.solver, args.output, args.verb)
+    result = cnf_parser.call_solver(args.solver, args.output, args.verb)
+    cnf_parser.print_result(result, instance_parser.subsets)
 
 
 if __name__ == "__main__":
