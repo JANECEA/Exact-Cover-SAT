@@ -9,8 +9,8 @@ class CnfParser:
     subset_count: int
     cnf: list[list[int]]
 
-    def __init__(self, element_occurences: list[list[int]], subset_count: int) -> None:
-        self.element_occurrences = element_occurences
+    def __init__(self, element_occurrences: list[list[int]], subset_count: int) -> None:
+        self.element_occurrences = element_occurrences
         self.subset_count = subset_count
 
     def encode_to_cnf(self) -> None:
@@ -22,12 +22,12 @@ class CnfParser:
 
         # Every element needs to be present at most once in the chosen subsets
         for occurrences in self.element_occurrences:
-            for i in range(len(occurrences)):
+            for i, _ in enumerate(occurrences):
                 for j in range(i + 1, len(occurrences)):
                     self.cnf.append([-occurrences[i] - 1, -occurrences[j] - 1])
 
     def write_to_file(self, output_path: str):
-        with open(output_path, "w") as output_file:
+        with open(output_path, "w", encoding="utf-8") as output_file:
             output_file.write(f"p cnf {str(self.subset_count)} {str(len(self.cnf))}\n")
             for clause in self.cnf:
                 output_file.write(" ".join(str(literal) for literal in clause) + " 0\n")
@@ -36,7 +36,7 @@ class CnfParser:
         self, solver_path: str, output_path: str, verbosity: int
     ) -> subprocess.CompletedProcess[bytes]:
         if not os.path.isfile(output_path):
-            raise Exception(f"File {output_path} has not been found")
+            raise ValueError(f"File {output_path} has not been found")
 
         solver_name: str = solver_path
         if os.path.isfile(solver_path):
@@ -45,6 +45,7 @@ class CnfParser:
         return subprocess.run(
             [solver_name, "-model", "-verb=" + str(verbosity), output_path],
             stdout=subprocess.PIPE,
+            check=False,
         )
 
     def print_result(
@@ -61,8 +62,8 @@ class CnfParser:
         model = []
         for line in decoded_result:
             if line.startswith("v"):
-                vars = line[2:].split(" ")
-                model.extend(int(v) for v in vars)
+                variables = line[2:].split(" ")
+                model.extend(int(v) for v in variables)
         model.remove(0)
 
         print()
@@ -89,7 +90,7 @@ class InstanceParser:
         self.path_to_file = path_to_file
 
     def load_instance(self) -> None:
-        with open(self.path_to_file) as input_file:
+        with open(self.path_to_file, encoding="utf-8") as input_file:
             main_set_str: str = input_file.readline()
             subsets_str: str = input_file.read()
 
@@ -100,7 +101,7 @@ class InstanceParser:
     def __set_main_set(self, main_set_str: str) -> None:
         main_set_str = main_set_str.strip()
         if main_set_str[0] != "{" or main_set_str[-1] != "}":
-            raise Exception("Invalid input file format")
+            raise ValueError("Invalid input file format")
         main_set_str = main_set_str.strip("{}")
 
         self.__main_set_dict = {}
@@ -108,12 +109,12 @@ class InstanceParser:
             if element not in self.__main_set_dict:
                 self.__main_set_dict[element] = index
             else:
-                raise Exception(f"Element {element} is repeated in the main set.")
+                raise ValueError(f"Element {element} is repeated in the main set.")
 
     def __set_subsets(self, subsets_str: str) -> None:
         subsets_str = subsets_str.strip()
         if subsets_str[0] != "{" or subsets_str[-1] != "}":
-            raise Exception("Invalid input file format")
+            raise ValueError("Invalid input file format")
         subsets_str = subsets_str.strip("{}")
 
         self.subsets = []
@@ -123,7 +124,7 @@ class InstanceParser:
                 if set_start_index == -1:
                     set_start_index = index
                 else:
-                    raise Exception("Invalid input file format")
+                    raise ValueError("Invalid input file format")
 
             if char == "}":
                 if set_start_index != -1:
@@ -133,10 +134,10 @@ class InstanceParser:
                     )
                     set_start_index = -1
                 else:
-                    raise Exception("Invalid input file format")
+                    raise ValueError("Invalid input file format")
 
         if set_start_index != -1:
-            raise Exception("Invalid input file format")
+            raise ValueError("Invalid input file format")
 
     def __parse_subset(self, subset_str: str, subset_index: int) -> set[str]:
         subset_str = subset_str.strip()
@@ -153,11 +154,11 @@ class InstanceParser:
                         subset_index
                     )
                 else:
-                    raise Exception(
+                    raise ValueError(
                         f"Element {element} has not been found in the main set"
                     )
             else:
-                raise Exception(
+                raise ValueError(
                     f'Element {element} is repeated in the "{{{subset_str}}}" set.'
                 )
 
