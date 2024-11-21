@@ -1,7 +1,7 @@
 import random
 
-MAIN_SET_SIZE = 5
-SUBSET_COUNT_MULT = 1
+MAIN_SET_SIZE = 50
+SUBSET_COUNT_MULT = 10
 GUARANTEED_SAT = False
 OUTPUT_FILE_NAME = "input.in"
 
@@ -32,9 +32,13 @@ if GUARANTEED_SAT:
     target_subsets: list[list[int]] = [[] for _ in range(MAIN_SET_SIZE)]
     for element, subset_index in enumerate(distribution):
         target_subsets[subset_index].append(element)
-    target_subsets = [set for set in target_subsets if len(set) != 0]
+
+    target_subsets = [
+        targer_set for targer_set in target_subsets if len(targer_set) != 0
+    ]
 
     for target_subset in target_subsets:
+        target_subset.sort()
         subsets.insert(random.randint(0, len(subsets)), target_subset)
 
 
